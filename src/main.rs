@@ -12,17 +12,20 @@ where P: AsRef<Path>, {
 
 fn main() {
   
-  let hashed_passwd = bcrypt::hash("password").unwrap();
+  let hashed_passwd = bcrypt::hash("somethingelse").unwrap();
   println!("password hashed: {}", hashed_passwd);
-  assert_eq!(bcrypt::verify("password", &hashed_passwd), true);
+  assert_eq!(bcrypt::verify("somethingelse", &hashed_passwd), true);
 
   //let unix_hash_test = "$y$j9T$p4cf7dtrBK3rLMAP5uAEK0$1SVQKLujPJyYraDEAYjVOTNOIlNif/kbIjIYM9bQKM9";
   //assert_eq!(unix::verify("123456789", unix_hash_test), true);
-
+  
   if let Ok(lines) = read_lines("./src/dictionary.txt") {
-    for line in lines {
+    for (i, line) in lines.enumerate() {
       if let Ok(plain_text) = line {
-        println!("{}", plain_text);
+        if bcrypt::verify(&plain_text, &hashed_passwd) {
+          println!("{}, is the correct password. on line: {}", plain_text, i + 1);
+          break;
+        }
       }
     }
   }
