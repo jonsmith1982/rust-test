@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::time::Instant;
 use pwhash::bcrypt;
 //use pwhash::unix;
 
@@ -11,7 +12,7 @@ where P: AsRef<Path>, {
 }
 
 fn main() -> io::Result<()> {
-  
+  let start_time = Instant::now();
   let hashed_passwd = bcrypt::hash("somethingelse").unwrap();
   println!("password hashed: {}", &hashed_passwd);
   assert_eq!(bcrypt::verify("somethingelse", &hashed_passwd), true);
@@ -28,7 +29,7 @@ fn main() -> io::Result<()> {
     for (i, line) in lines.enumerate() {
       if let Ok(plain_text) = line {
         if bcrypt::verify(&plain_text, &hashed_passwd) {
-          println!("{}, is the correct password. passphrase: {}/{}", &plain_text, &i + 1, &total_lines);
+          println!("{}, is the correct password. passphrase: {}/{} found in {:?}", &plain_text, &i + 1, &total_lines, start_time.elapsed());
           break;
         }
       }
